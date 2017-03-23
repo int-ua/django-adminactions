@@ -124,6 +124,21 @@ class MergeTestApi(BaseTestCaseMixin, TransactionTestCase):
         self.assertEqual(master.onetoone, related_one)
         self.assertTrue(DemoOneToOne.objects.filter(pk=related_one.pk).exists())
 
+    def test_merge_one_to_one_combine(self):
+        master = DemoModel.objects.get(pk=1)
+        other = DemoModel.objects.get(pk=2)
+        related_one = DemoOneToOne(demo=master)
+        related_one.save()
+        related_two = DemoOneToOne(demo=other)
+        related_two.save()
+
+        result = merge(master, other, commit=True, related=ALL_FIELDS)
+
+        master = DemoModel.objects.get(pk=result.pk)  # reload
+        self.assertEqual(master.onetoone, related_two)
+        self.assertTrue(DemoOneToOne.objects.filter(pk=related_two.pk).exists())
+        self.assertFalse(DemoOneToOne.objects.filter(pk=related_one.pk).exists())
+
     # @skipIf(not hasattr(settings, 'AUTH_PROFILE_MODULE'), "")
     def test_merge_one_to_one_field(self):
         master = User.objects.get(pk=self.master_pk)
