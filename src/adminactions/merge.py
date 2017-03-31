@@ -83,7 +83,8 @@ def merge(modeladmin, request, queryset):  # noqa
 
     def raw_widget(field, **kwargs):
         """ force all fields as not required"""
-        kwargs['widget'] = TextInput({'class': 'raw-value'})
+        if not isinstance(field, models.FileField):
+            kwargs['widget'] = TextInput({'class': 'raw-value'})
         return field.formfield(**kwargs)
 
     merge_form = getattr(modeladmin, 'merge_form', MergeForm)
